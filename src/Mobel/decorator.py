@@ -1,5 +1,5 @@
 from inspect import signature
-from typing import TypeVar, Callable, Optional, List, Any, Dict, Protocol, overload
+from typing import TypeVar, Callable, overload
 
 __all__ = ["makeDecorator"]
 
