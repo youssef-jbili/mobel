@@ -31,7 +31,7 @@ jobs:
           # Version range or exact version of a Python version to use, using SemVer's version range syntax.
           python-version: 3.8
       - name: Install test runner
-        run: pip install pytest
+        run: pip install pytest pytest-cov
 
       # Runs a set of commands using the runners shell
       - name: test
