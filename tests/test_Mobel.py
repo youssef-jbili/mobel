@@ -23,12 +23,18 @@ class TestMobel:
 
         assert targetFunction(1) == 6
 
-    def test_failForNoArgsDecorator(self):
-        """should throw error if decorator has no args
+    def test_NoArgsDecorator(self):
+        """should convert normal decorators to decorator factories
         """
-        def decoratorTemplate(f):
-            """dummy function"""
-            pass
 
-        with pytest.raises(ValueError):
-            makeDecorator(decoratorTemplate)
+        @makeDecorator
+        def dummyDecorator(f: Callable) -> Callable:
+            def decorator(*args, **kwargs):
+                return 2*f(*args, **kwargs)
+            return decorator
+
+        @dummyDecorator()
+        def targetFunction(x: float):
+            return 2*x
+
+        assert targetFunction(1) == 4

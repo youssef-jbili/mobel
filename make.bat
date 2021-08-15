@@ -1,6 +1,6 @@
 @ECHO off    
 if /I %1 == install goto :install
-if /I %1 == run-tests goto :test
+if /I %1 == run-tests goto :run-tests
 
 echo please provide a make target
 goto :eof

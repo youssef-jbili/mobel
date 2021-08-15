@@ -1,5 +1,6 @@
 from inspect import signature
 from typing import TypeVar, Callable, overload
+from functools import wraps
 
 __all__ = ["makeDecorator"]
 
@@ -18,70 +19,58 @@ F = TypeVar("F", bound=Callable)
 
 RV = TypeVar("RV")
 
-PNone = Callable[[F], RV]
-DNone = Callable[[], RV]
+Decorator = Callable[[F], RV]
+NoArgsDecoratorFactory = Callable[[], Decorator]
 
 PA = Callable[[F, TA], RV]
-DA = Callable[[TA], RV]
+DA = Callable[[TA], Decorator]
 
 PB = Callable[[F, TA, TB], RV]
-DB = Callable[[TA, TB], RV]
+DB = Callable[[TA, TB], Decorator]
 
 PC = Callable[[F, TA, TB, TC], RV]
-DC = Callable[[TA, TB, TC], RV]
+DC = Callable[[TA, TB, TC], Decorator]
 
 PD = Callable[[F, TA, TB, TC, TD], RV]
-DD = Callable[[TA, TB, TC, TD], RV]
+DD = Callable[[TA, TB, TC, TD], Decorator]
 
 PE = Callable[[F, TA, TB, TC, TD, TE], RV]
-DE = Callable[[TA, TB, TC, TD, TE], RV]
+DE = Callable[[TA, TB, TC, TD, TE], Decorator]
 
 
 @overload
-def makeDecorator(f: PNone) -> DNone:
+def makeDecorator(decoratorPrototype: Decorator) -> NoArgsDecoratorFactory:
     ...  # pragma: no cover
 
 
 @overload
-def makeDecorator(f: PA) -> DA:
+def makeDecorator(decoratorPrototype: PA) -> DA:
     ...  # pragma: no cover
 
 
 @overload
-def makeDecorator(f: PB) -> DB:
+def makeDecorator(decoratorPrototype: PB) -> DB:
     ...  # pragma: no cover
 
 
 @overload
-def makeDecorator(f: PC) -> DC:
+def makeDecorator(decoratorPrototype: PC) -> DC:
     ...  # pragma: no cover
 
 
 @overload
-def makeDecorator(f: PD) -> DD:
+def makeDecorator(decoratorPrototype: PD) -> DD:
     ...  # pragma: no cover
 
 
 @overload
-def makeDecorator(f: PE) -> DE:
+def makeDecorator(decoratorPrototype: PE) -> DE:
     ...  # pragma: no cover
 
 
 def makeDecorator(decoratorPrototype):
-
-    numberOfTemplateArguments = numberOfArguments(decoratorPrototype)
-
-    if numberOfTemplateArguments == 1:
-        raise ValueError(
-            """expected decorator to take more than one argument, 
-            for simple decorators 'makeDecorator' is not needed""")
-
     def decoratorFactory(*args, **kwargs):
         def decorator(functionToDecorate):
-            return decoratorPrototype(functionToDecorate, *args, *kwargs)
+            return wraps(functionToDecorate)(decoratorPrototype(functionToDecorate, *args, *kwargs))
         return decorator
     return decoratorFactory
-
-
-def numberOfArguments(f: Callable) -> int:
-    return len(signature(f).parameters)
