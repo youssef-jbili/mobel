@@ -1,6 +1,6 @@
 install:
 	pip install --editable .
 
-run-tests:
+run-tests: install
 	python -m pytest
 	coverage html
