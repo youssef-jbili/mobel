@@ -10,6 +10,7 @@ pip install --editable .
 goto :eof
 
 :run-tests
+pip install --editable .
 python -m pytest
 coverage html
 goto :eof

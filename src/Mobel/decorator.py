@@ -1,8 +1,8 @@
-from inspect import signature
-from typing import TypeVar, Callable, overload
+from typing import Callable, Optional, TypeVar, overload
+import inspect
 from functools import wraps
 
-__all__ = ["makeDecorator"]
+__all__ = "makeDecorator"
 
 TA = TypeVar("TA")
 TB = TypeVar("TB")
@@ -69,8 +69,29 @@ def makeDecorator(decoratorPrototype: PE) -> DE:
 
 
 def makeDecorator(decoratorPrototype):
-    def decoratorFactory(*args, **kwargs):
-        def decorator(functionToDecorate):
-            return wraps(functionToDecorate)(decoratorPrototype(functionToDecorate, *args, *kwargs))
-        return decorator
-    return decoratorFactory
+    function_signature = inspect.signature(decoratorPrototype)
+
+    if len(function_signature.parameters.values()) == 0:
+        raise ValueError("decorator prototype must have at least one argument")
+
+    if functionHasPositionalOnlyArguments(function_signature):
+        raise ValueError(
+            "decorator prototype can't have positional only arguments")
+
+    def decoratorOrFactory(functionToDecorate: Optional[Callable] = None, /, **kwargs):
+        if functionToDecorate is None:
+            def decorator(functionToDecorate):
+                return wraps(functionToDecorate)(decoratorPrototype(functionToDecorate, **kwargs))
+            return decorator
+        return wraps(functionToDecorate)(decoratorPrototype(functionToDecorate))
+    return decoratorOrFactory
+
+
+def functionHasPositionalOnlyArguments(function_signature: inspect.Signature) -> bool:
+    arguments = iter(function_signature.parameters.values())
+    next(arguments)  # skip the first argument which is the function to decorate
+    try:
+        first_argument = next(arguments)
+        return first_argument.kind == first_argument.POSITIONAL_ONLY
+    except StopIteration:
+        return False
