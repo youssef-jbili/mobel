@@ -62,7 +62,7 @@ class TestMobel:
         """
 
         def dummyDecorator(f, x, /):
-            pass
+            pass  # ignore S1186
 
         with pytest.raises(ValueError):
             makeDecorator(dummyDecorator)
@@ -72,7 +72,7 @@ class TestMobel:
         """
 
         def dummyDecorator():
-            pass
+            pass  # ignore S1186
 
         with pytest.raises(ValueError):
             makeDecorator(dummyDecorator)

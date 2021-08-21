@@ -1,4 +1,4 @@
-from typing import Callable, Optional, TypeVar, overload
+from typing import Callable, Optional, TypeVar, Union, overload, Protocol
 import inspect
 from functools import wraps
 
@@ -15,27 +15,35 @@ TH = TypeVar("TH")
 TI = TypeVar("TI")
 TJ = TypeVar("TJ")
 
-F = TypeVar("F", bound=Callable)
+F = TypeVar("F", bound=Callable, contravariant=True)
 
-RV = TypeVar("RV")
+RV = TypeVar("RV", bound=Callable, covariant=True)
 
 Decorator = Callable[[F], RV]
 NoArgsDecoratorFactory = Callable[[], Decorator]
 
+
+class DecoratorFactory(Protocol[F, RV]):
+    @overload
+    def __call__(self) -> Callable[[F], RV]: ...
+    @overload
+    def __call__(self, f: F) -> RV: ...
+
+
 PA = Callable[[F, TA], RV]
-DA = Callable[[TA], Decorator]
+DA = Union[Callable[[TA], Decorator], DecoratorFactory[F, RV]]
 
 PB = Callable[[F, TA, TB], RV]
-DB = Callable[[TA, TB], Decorator]
+DB = Union[Callable[[TA, TB], Decorator], DecoratorFactory[F, RV]]
 
 PC = Callable[[F, TA, TB, TC], RV]
-DC = Callable[[TA, TB, TC], Decorator]
+DC = Union[Callable[[TA, TB, TC], Decorator], DecoratorFactory[F, RV]]
 
 PD = Callable[[F, TA, TB, TC, TD], RV]
-DD = Callable[[TA, TB, TC, TD], Decorator]
+DD = Union[Callable[[TA, TB, TC, TD], Decorator], DecoratorFactory[F, RV]]
 
 PE = Callable[[F, TA, TB, TC, TD, TE], RV]
-DE = Callable[[TA, TB, TC, TD, TE], Decorator]
+DE = Union[Callable[[TA, TB, TC, TD, TE], Decorator], DecoratorFactory[F, RV]]
 
 
 @overload
