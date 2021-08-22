@@ -2,6 +2,8 @@ from typing import Callable, Optional, TypeVar, Union, overload, Protocol
 import inspect
 from functools import wraps
 
+from .common import ANNOTATION_DIR
+
 __all__ = "makeDecorator"
 
 TA = TypeVar("TA")
@@ -77,6 +79,20 @@ def makeDecorator(decoratorPrototype: PE) -> DE:
 
 
 def makeDecorator(decoratorPrototype):
+    """Converts a prototype function into a decorator and/or decorator factory
+        the generated decorator can only have keyword arguments
+        if the prototype has positional_or_keyword arguments they'll be converted to keyword
+
+    Args:
+        decoratorPrototype (Callable): decorator prototype
+
+    Raises:
+        ValueError: The decorator prototype has no arguments
+        ValueError: The decorator prototype has positional only arguments
+
+    Returns:
+        Callable: the decorator/decorator factory
+    """
     function_signature = inspect.signature(decoratorPrototype)
 
     if len(function_signature.parameters.values()) == 0:
@@ -89,13 +105,22 @@ def makeDecorator(decoratorPrototype):
     def decoratorOrFactory(functionToDecorate: Optional[Callable] = None, /, **kwargs):
         if functionToDecorate is None:
             def decorator(functionToDecorate):
-                return wraps(functionToDecorate)(decoratorPrototype(functionToDecorate, **kwargs))
+                return wrapFunction(functionToDecorate, decoratorPrototype(functionToDecorate, **kwargs))
             return decorator
-        return wraps(functionToDecorate)(decoratorPrototype(functionToDecorate))
+        return wrapFunction(functionToDecorate, decoratorPrototype(functionToDecorate))
     return decoratorOrFactory
 
 
 def functionHasPositionalOnlyArguments(function_signature: inspect.Signature) -> bool:
+    """ Checks whether the function signature provided contains positional only arguments
+        other than the argument representing the function to decorate
+
+    Args:
+        function_signature (Signature): function signature
+
+    Returns:
+        bool: True if the provided signature has unwanted positional only arguments
+    """
     arguments = iter(function_signature.parameters.values())
     next(arguments)  # skip the first argument which is the function to decorate
     try:
@@ -103,3 +128,24 @@ def functionHasPositionalOnlyArguments(function_signature: inspect.Signature) ->
         return first_argument.kind == first_argument.POSITIONAL_ONLY
     except StopIteration:
         return False
+
+
+Func = TypeVar("Func", bound=Callable)
+
+
+def wrapFunction(sourceFunction: Func, targetFunction: Func) -> Func:
+    """Function that preserves the signature of the sourceFunction into the targetFunction
+        and copies attibutes used by Mobel such as Annotations
+
+    Args:
+        sourceFunction (Callable): function to copy properties from
+        targetFunction (Callable): function to copy properties to
+
+    Returns:
+        Callable: wrapped target function
+    """
+    wrappedFunction = wraps(sourceFunction)(targetFunction)
+    if hasattr(sourceFunction, ANNOTATION_DIR):
+        sourceAnnotations = getattr(sourceFunction, ANNOTATION_DIR)
+        setattr(wrappedFunction, ANNOTATION_DIR, sourceAnnotations)
+    return wrappedFunction

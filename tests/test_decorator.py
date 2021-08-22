@@ -3,8 +3,8 @@ from Mobel import makeDecorator
 import pytest
 
 
-class TestMobel:
-    """Mobel:
+class TestDecorator:
+    """Decorator:
     """
 
     def test_DecoratorWithArgsPresent(self):
