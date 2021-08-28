@@ -2,6 +2,8 @@ from typing import Callable
 from Mobel import makeDecorator
 import pytest
 
+from Mobel.annotation import Annotation, hasAnnotation
+
 
 class TestDecorator:
     """Decorator:
@@ -76,3 +78,23 @@ class TestDecorator:
 
         with pytest.raises(ValueError):
             makeDecorator(dummyDecorator)
+
+    def test_DecoratorsPreserveAnnotations(self):
+        """decorators should preserve annotations
+        """
+
+        class TestAnnotation(Annotation):
+            pass
+
+        @makeDecorator
+        def testDecorator(_):
+            def anotherFunction():
+                pass  # ignore: S1186
+            return anotherFunction
+
+        @testDecorator
+        @TestAnnotation
+        def testFunction():
+            pass  # ignore: S1186
+
+        assert hasAnnotation(testFunction, "TestAnnotation") == True

@@ -1,12 +1,14 @@
 from Mobel import Annotation, makeDecorator
-from Mobel.annotation import hasAnnotation
+from Mobel.annotation import getAnnotation, hasAnnotation
+
+import pytest
 
 
 class TestAnnotation:
     """Annotation:
     """
 
-    def test_AddAndRecoverAnnotation(self):
+    def test_AddAndCheckAnnotation(self):
         """should create Annotation and check that it's present
         """
 
@@ -17,34 +19,68 @@ class TestAnnotation:
         def testFunction():
             pass  # ignore: S1186
 
-        assert hasAnnotation(testFunction, "TestAnnotation") == True
-        assert hasAnnotation(testFunction, "SomeOtherAnnotation") == False
+        assert hasAnnotation(testFunction, "TestAnnotation")
+        assert not hasAnnotation(testFunction, "SomeOtherAnnotation")
+
+    def test_AddAndRecoverAnnotation(self):
+        """should create Annotation and get its parameters
+        """
+
+        class TestAnnotation(Annotation):
+            testValue: float
+
+        @TestAnnotation(testValue=4.)
+        def testFunction():
+            pass  # ignore: S1186
+
+        assert getAnnotation(testFunction, "TestAnnotation").testValue == 4.
 
     def test_CheckAnnotationOnVanillaFunction(self):
+        """hasAnnotation should work on vanilla functions
+        """
+
+        def testFunction():
+            pass  # ignore: S1186
+
+        assert not hasAnnotation(testFunction, "SomeAnnotation")
+
+    def test_getAnnotationOnVanillaFunction(self):
         """getAnnotation should work on vanilla functions
         """
 
         def testFunction():
             pass  # ignore: S1186
 
-        assert hasAnnotation(testFunction, "SomeAnnotation") == False
+        assert getAnnotation(testFunction, "SomeAnnotation") is None
 
-    def test_DecoratorsPreserveAnnotations(self):
-        """decorators should preserve annotations
+    def test_functionHasMultipleAnnotations(self):
+        """test function that contains multiple annotations
         """
 
-        class TestAnnotation(Annotation):
+        class FirstAnnotation(Annotation):
             pass
 
-        @makeDecorator
-        def testDecorator(_):
-            def anotherFunction():
-                pass  # ignore: S1186
-            return anotherFunction
+        class SecondAnnotation(Annotation):
+            pass
 
-        @testDecorator
-        @TestAnnotation
+        @FirstAnnotation
+        @SecondAnnotation
         def testFunction():
             pass  # ignore: S1186
 
-        assert hasAnnotation(testFunction, "TestAnnotation") == True
+        assert hasAnnotation(testFunction, "FirstAnnotation")
+        assert hasAnnotation(testFunction, "SecondAnnotation")
+
+    def test_callDecoratorWithoutArgumentsRaisesError(self):
+        """should raise ValueError if an annotation that requires arguments
+            doesn't get them
+        """
+
+        class FirstAnnotation(Annotation):
+            required: bool
+
+        with pytest.raises(TypeError):
+
+            @FirstAnnotation
+            def testFunction():
+                pass  # ignore: S1186
