@@ -52,14 +52,14 @@ class mySuperAnnotation(Annotation):
 def dummyFunction():
     ...
 
-hasAnnotation(dummyFunction,mySuperAnnotation.name) # True
-getAnnotation(dummyFunction,mySuperAnnotation.name).numberOfThings # 3
+hasAnnotation(dummyFunction,mySuperAnnotation) # True
+getAnnotation(dummyFunction,mySuperAnnotation).numberOfThings # 3
 
 @mySuperAnnotation
 def otherDummyFunction():
     ...
 
-getAnnotation(otherDummyFunction,mySuperAnnotation.name).numberOfThings # 5
+getAnnotation(otherDummyFunction,mySuperAnnotation).numberOfThings # 5
 ```
 
 Internally it uses the Python `dataclass` to store the annotation data

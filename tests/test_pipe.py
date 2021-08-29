@@ -41,8 +41,8 @@ class TestPipe:
             return x
 
         assert identity(1) == 20
-        assert hasAnnotation(identity, isMultipliedBy.name)
-        assert getAnnotation(identity, isMultipliedBy.name).multipliedBy == 4.
+        assert hasAnnotation(identity, isMultipliedBy)
+        assert getAnnotation(identity, isMultipliedBy).multipliedBy == 4.
 
     def test_pipeWithArgumentsForOneDecorator(self):
         @pipedDecorators(multiple=10.)
@@ -50,8 +50,8 @@ class TestPipe:
             return x
 
         assert identity(1) == 20
-        assert hasAnnotation(identity, isMultipliedBy.name)
-        assert getAnnotation(identity, isMultipliedBy.name).multipliedBy == 3.
+        assert hasAnnotation(identity, isMultipliedBy)
+        assert getAnnotation(identity, isMultipliedBy).multipliedBy == 3.
 
     def test_pipeWithNoArguments(self):
         @pipedDecorators
@@ -59,8 +59,8 @@ class TestPipe:
             return x
 
         assert identity(1) == 4
-        assert hasAnnotation(identity, isMultipliedBy.name)
-        assert getAnnotation(identity, isMultipliedBy.name).multipliedBy == 3.
+        assert hasAnnotation(identity, isMultipliedBy)
+        assert getAnnotation(identity, isMultipliedBy).multipliedBy == 3.
 
     def test_pipeMapping(self):
         @mappedDecorators(multiple=10.)
@@ -68,5 +68,5 @@ class TestPipe:
             return x
 
         assert identity(1) == 20
-        assert hasAnnotation(identity, isMultipliedBy.name)
-        assert getAnnotation(identity, isMultipliedBy.name).multipliedBy == 10.
+        assert hasAnnotation(identity, isMultipliedBy)
+        assert getAnnotation(identity, isMultipliedBy).multipliedBy == 10.

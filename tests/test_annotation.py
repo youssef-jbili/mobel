@@ -33,7 +33,7 @@ class TestAnnotation:
         def testFunction():
             pass  # ignore: S1186
 
-        assert getAnnotation(testFunction, "TestAnnotation").testValue == 4.
+        assert getAnnotation(testFunction, TestAnnotation).testValue == 4.
 
     def test_CheckAnnotationOnVanillaFunction(self):
         """hasAnnotation should work on vanilla functions
@@ -48,10 +48,13 @@ class TestAnnotation:
         """getAnnotation should work on vanilla functions
         """
 
+        class SomeAnnotation(Annotation):
+            pass
+
         def testFunction():
             pass  # ignore: S1186
 
-        assert getAnnotation(testFunction, "SomeAnnotation") is None
+        assert getAnnotation(testFunction, SomeAnnotation) is None
 
     def test_functionHasMultipleAnnotations(self):
         """test function that contains multiple annotations
