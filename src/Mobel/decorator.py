@@ -1,5 +1,6 @@
 from typing import Callable, Optional, TypeVar, Union, overload, Protocol
 import inspect
+import types
 from functools import wraps
 
 from .common import ANNOTATION_DIR
@@ -144,7 +145,9 @@ def wrapFunction(sourceFunction: Func, targetFunction: Func) -> Func:
     Returns:
         Callable: wrapped target function
     """
-    wrappedFunction = wraps(sourceFunction)(targetFunction)
+    wrappedFunction = targetFunction
+    if isinstance(sourceFunction, types.FunctionType):
+        wrappedFunction = wraps(sourceFunction)(targetFunction)
     if hasattr(sourceFunction, ANNOTATION_DIR):
         sourceAnnotations = getattr(sourceFunction, ANNOTATION_DIR)
         setattr(wrappedFunction, ANNOTATION_DIR, sourceAnnotations)
