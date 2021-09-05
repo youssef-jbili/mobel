@@ -1,4 +1,4 @@
-from Mobel import Annotation, makeDecorator
+from Mobel import Annotation
 from Mobel.annotation import getAnnotation, hasAnnotation
 
 import pytest

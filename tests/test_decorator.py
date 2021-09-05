@@ -97,4 +97,4 @@ class TestDecorator:
         def testFunction():
             pass  # ignore: S1186
 
-        assert hasAnnotation(testFunction, "TestAnnotation") == True
+        assert hasAnnotation(testFunction, "TestAnnotation")
